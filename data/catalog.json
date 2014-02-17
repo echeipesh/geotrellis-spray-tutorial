@@ -1,0 +1,13 @@
+{
+ "catalog": "Catalog of Tutorial Data",
+ "stores": [
+  {
+   "store": "tutoral:fs",
+   "params": {
+     "type": "fs",
+     "path": "data/arg",
+     "cacheAll": "no"
+    }
+  }
+ ]
+}
