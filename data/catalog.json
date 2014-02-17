@@ -5,7 +5,7 @@
    "store": "tutoral:fs",
    "params": {
      "type": "fs",
-     "path": "data/arg",
+     "path": "arg",
      "cacheAll": "no"
     }
   }

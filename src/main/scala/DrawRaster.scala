@@ -5,9 +5,11 @@ import javax.ws.rs.{GET, Path, PathParam}
 import javax.ws.rs.core.{Response,Context}
 
 import geotrellis._
-import geotrellis.statistics.op._
-import geotrellis.rest.op.string.{SplitOnComma,ParseColor,
-                                  ParseInt}
+import geotrellis.source.{RasterSource}
+import geotrellis.render.{Color}
+import geotrellis.process.{Error, Complete}
+
+
 
 @Path("/draw/")
 class DrawRaster {
@@ -17,34 +19,23 @@ class DrawRaster {
           @PathParam("shades") shades:String,
           @Context req:HttpServletRequest) = {
 
-    // load the raster
-    val rasterOp = io.LoadRaster("philly_inc_percap")
+    val raster = RasterSource("philly_inc_percap")
 
-    // find the colors to use
-    val paletteOp =
-      logic.ForEach(SplitOnComma(palette))(ParseColor(_))
-    val numOp = ParseInt(shades)
-    val colorsOp = stat.GetColorsFromPalette(paletteOp, numOp)
+    val num = shades.toInt
+    val colors = palette.split(",").map(Color.parseColor(_))
 
-    // find the appropriate quantile class breaks to use
-    val histogramOp = stat.GetHistogram(rasterOp)
-    val breaksOp = stat.GetColorBreaks(histogramOp, colorsOp)
+    //renderPng will generate the histogram from the raster and use colors correctly
+    raster.renderPng(colors, num).run match {
+      case Complete(img, hist) =>
+        Response.ok(img)
+          .`type`("image/png")
+          .build()
 
-    // render the png
-    val pngOp = 
-      io.RenderPng(rasterOp, breaksOp, histogramOp, 0)
+      case Error(msg, trace) =>
+        Response.ok(s"Error: $msg")
+          .`type`("text/plain")
+          .build()
 
-    // run the operation
-    try {
-      val img:Array[Byte] = Main.server.run(pngOp)
-      Response.ok(img)
-              .`type`("image/png")
-              .build()
-    } catch {
-      case e:Throwable => 
-        Response.ok(s"Error: $e")
-                .`type`("text/plain")
-                .build()
     }
   }
 }
