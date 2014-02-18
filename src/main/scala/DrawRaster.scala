@@ -6,7 +6,7 @@ import javax.ws.rs.core.{Response,Context}
 
 import geotrellis._
 import geotrellis.source.{RasterSource}
-import geotrellis.render.{Color}
+import geotrellis.render.{ColorRamps, ColorRamp, Color}
 import geotrellis.process.{Error, Complete}
 
 
@@ -25,7 +25,7 @@ class DrawRaster {
     val colors = palette.split(",").map(Color.parseColor(_))
 
     //renderPng will generate the histogram from the raster and use colors correctly
-    raster.renderPng(colors, num).run match {
+    raster.renderPng(ColorRamps.BlueToRed).run match {
       case Complete(img, hist) =>
         Response.ok(img)
           .`type`("image/png")
