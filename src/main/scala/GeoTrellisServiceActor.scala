@@ -47,13 +47,18 @@ trait GeoTrellisService extends HttpService {
       get { complete("pong!1") }
     } ~
     pathPrefix("raster" / Segment) { slug =>
+      //Construct an object with instructions to fetch the raster
       val raster: RasterSource = RasterSource(slug)
 
       path("draw") {
         get {
           respondWithMediaType(MediaTypes.`image/png`) {
             complete {
-              raster.renderPng(ColorRamps.BlueToRed).run match {
+              //Cunstruct an object that knows how to build a PNG once the Raster is loaded
+              val png: ValueSource[Png] = raster.renderPng(ColorRamps.BlueToRed)
+
+              //Perform the operations leading to this result
+              png.run match {
                 case Complete(img, hist) =>
                   img
                 case Error(msg, trace) =>
