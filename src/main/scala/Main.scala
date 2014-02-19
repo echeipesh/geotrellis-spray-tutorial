@@ -10,8 +10,8 @@ import spray.can.Http
 
 object Main {
   def main(args: Array[String]): Unit = {
-    val port = 8999 //config.getInt("geotrellis.port")
-    val host = "localhost" //config.getString("geotrellis.hostname")
+    val port = config.getInt("geotrellis.port")
+    val host = "localhost"
 
     // we need an ActorSystem to host our service
     implicit val system = ActorSystem()

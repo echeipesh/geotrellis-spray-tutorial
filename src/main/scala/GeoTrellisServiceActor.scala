@@ -33,15 +33,6 @@ trait GeoTrellisService extends HttpService {
         }
     }
 
-  def rasterAsPng(name: String) = {
-    val raster = RasterSource(name)
-
-    raster.renderPng(ColorRamps.BlueToRed).run match {
-      case Complete(img, hist) => img
-      case Error(msg, trace) => throw new RuntimeException(msg)
-    }
-  }
-
   val rootRoute = {
     path("ping") {
       get { complete("pong!1") }
@@ -53,6 +44,9 @@ trait GeoTrellisService extends HttpService {
       path("draw") {
         get {
           respondWithMediaType(MediaTypes.`image/png`) {
+            //Construct an object that knows how to build a PNG once the Raster is loaded
+            val png: ValueSource[Png] = raster.renderPng(ColorRamps.BlueToRed)
+
             complete {
               //Cunstruct an object that knows how to build a PNG once the Raster is loaded
               val png: ValueSource[Png] = raster.renderPng(ColorRamps.BlueToRed)
@@ -124,7 +118,5 @@ trait GeoTrellisService extends HttpService {
         }
       }
     }
-
   }
-
 }
