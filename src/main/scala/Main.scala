@@ -1,17 +1,25 @@
 package tutorial
 
-import geotrellis.process.{Server,Catalog}
+import akka.actor.{ ActorRef, Props, Actor, ActorSystem }
+import akka.routing.FromConfig
 
-/** WebRunner now lives in geotrellis-jetty project
-*   changed from: "import geotrellis.rest.WebRunner"
-*/
-import geotrellis.jetty.WebRunner
+import akka.actor.{ActorSystem, Props}
+import akka.io.IO
+import spray.can.Http
+
 
 object Main {
-/** Geotrellis now has an implicit server object, this is not needed
-  * Q: Where does it get the data from exactly? */
-//  val server = Server("tutorial-server",
-//                       Catalog.fromPath("data/catalog.json"))
-	
-  def main(args: Array[String]) = WebRunner.run()
+  def main(args: Array[String]): Unit = {
+    val port = 8999 //config.getInt("geotrellis.port")
+    val host = "localhost" //config.getString("geotrellis.hostname")
+
+    // we need an ActorSystem to host our service
+    implicit val system = ActorSystem()
+
+    //create our service actor
+    val service = system.actorOf(Props[GeoTrellisServiceActor], "geotrellis-service")
+
+    //bind our actor to HTTP
+    IO(Http) ! Http.Bind(service, interface = host, port = port)
+  }
 }
