@@ -8,6 +8,6 @@ http://geotrellis.io/tutorials/webservice/spray/
 
 The tutorial covers:
 - Creating a Spray REST service
-- Including GeoTrellis library
+- Including the GeoTrellis library
 - Performing basic raster manipulations
 - Rendering rendering rasters to PNG
